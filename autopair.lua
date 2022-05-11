@@ -28,7 +28,7 @@ local function pair_close(close_char)
 end
 
 -- function for quotes
-local quote_pair = function(quote_char)
+local function quote_pair(quote_char)
 	return nextchar() == quote_char and move_next or f("%s%s%s", quote_char, quote_char, move_prev)
 end
 
