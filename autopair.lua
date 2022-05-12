@@ -14,9 +14,9 @@ local function nextchar()
 	return buftext(0, row, col, row, col + 1, {})[1]
 end
 
--- cursor movement chars
-local move_prev = t('<Left>', true, true, true)
-local move_next = t('<Right>', true, true, true)
+-- cursor movement "chars". Use <C-G>U before movement to not break undo
+local move_prev = t('<C-G>U<Left>', true, true, true)
+local move_next = t('<C-G>U<Right>', true, true, true)
 
 -- functions for pairs with different chars
 local function pair_open(pair)
