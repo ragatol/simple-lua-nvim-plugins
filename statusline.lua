@@ -49,12 +49,17 @@ local function make_ruler()
 end
 
 -- setup statusline function
-_G["statusline"] = function()
+local function statusline()
 	local active = vim.g.statusline_winid == vim.api.nvim_get_current_win()
 	local mode = active and curmode() or "" -- do not show mode in inactive windows
 	local color = active and "StatusLine" or "StatusLineNC"
 	local name = "%(%t%< %h%w%r%m%)"
 	return f("%s%%#%s# %s%%=%s%s", mode, color, name, fileinfo(), make_ruler())
 end
-vim.go.statusline = "%!v:lua.statusline()"
 
+-- export and setup statusline module
+M = {}
+local modname = ...
+M.statusline = statusline
+vim.go.statusline = f([[%%!v:lua.require'%s'.statusline()]], modname)
+return M
