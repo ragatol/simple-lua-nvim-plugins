@@ -44,16 +44,14 @@ local autopairs = {
 	['}'] = { callback = function() return pair_close('}') end; name = "CloseCurlyBracket"; },
 }
 
--- create global functions to be called and set keymaps
+-- export module functions
+M = {}
+local modname = ...
 local map = vim.api.nvim_set_keymap
-local autopair_functions = {}
 local map_options = { expr = true; noremap = true }
 for lhs, v in pairs(autopairs) do
-	autopair_functions[v.name] = v.callback
-	local rhs = f('v:lua.AutoPair.%s()', v.name)
+	M[v.name] = v.callback
+	local rhs = f([[v:lua.require'%s'.%s()]], modname, v.name)
 	map("i", lhs, rhs, map_options)
 end
-
--- export autopair functions to global scope
-_G["AutoPair"] = autopair_functions
-
+return M
