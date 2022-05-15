@@ -1,6 +1,7 @@
 # simple-lua-nvim-plugins
 Simple, minimalistic Lua plugins/scripts for NeoVim 0.7.
-These are meant to be read and modified by the user.
+
+Each have less than 100 lines of code and are meant to be read and modified by the user.
 
 ## Installation
 
