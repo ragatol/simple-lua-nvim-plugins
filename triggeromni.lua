@@ -84,7 +84,7 @@ local rhs_prev = f([[v:lua.require'%s'.prev()]], modname)
 -- @param conditions table with conditions to trigger the omnifunc
 -- @param bufnr (optional) buffer to setup, defaults to current buffer (0).
 M.setup = function(conditions, bufnr)
-	bufnr = bufnr == nil and 0 or bufnr
+	bufnr = bufnr or 0
 	vim.api.nvim_create_autocmd( "InsertCharPre", {
 		buffer = bufnr,
 		callback = make_triggeromni(conditions)
