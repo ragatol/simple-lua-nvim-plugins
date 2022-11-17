@@ -10,8 +10,8 @@ Then `require` the plugin from your init.lua.
 
 If you are using init.vim, the use `luafile` with the path to the plugin file to load it.
 
-These are very simple and small plugins, that are "good enough" to do what they propose to do.
-There's no configuration. There are meant to be used as a starting point for the user.
+These are very simple and small plugins, that are "good enough" to do what they propose to do,
+meant to be used as a starting point for the user.
 Using them with a plugin manager is not recommended.
 
 Neovim 0.7+ is required.
