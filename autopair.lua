@@ -36,11 +36,12 @@ end
 local newline_between = t('\r<C-O>O', true, true, true)
 local normal_newline = t('\r', true, true, true)
 local function inside_pair()
-	local row,col = unpack(getcursor(0))
+	local row, col = unpack(getcursor(0))
 	row = row - 1 -- change from 1 indexed to 0 indexed
-	local sides = buftext(0,row, col - 1, row, col + 1, {})[1]
+	local sides = buftext(0, row, col - 1, row, col + 1, {})[1]
 	return sides == "()" or sides == "[]" or sides == "{}"
 end
+
 local function newline_pair()
 	return inside_pair() and newline_between or normal_newline
 end
