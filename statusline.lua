@@ -18,8 +18,8 @@ local modes = {
 	[ b'r' ] = { text = "PROMPT"; color = "Question"; },
 	[ b't' ] = { text = "TERMINAL"; color = "Terminal"; },
 	[ b'!' ] = { text = "RUNNING"; color = "IncSearch"; },
-	[b'\22'] = { text = "V-BLOCK"; color = "DiffChange"; }, -- CTRL-V
-	[b'\19'] = { text = "S-BLOCK"; color = "PMenuSel"; }, -- CTRL-S
+	[ 19 ] = { text = "S-BLOCK"; color = "PMenuSel"; }, -- CTRL-S
+	[ 22 ] = { text = "V-BLOCK"; color = "DiffChange"; }, -- CTRL-V
 }
 
 local function curmode()
@@ -38,7 +38,8 @@ local function fileinfo()
 end
 
 -- ruler with scroll
-local scroll = { "▕██▏", "▕▇▇▏", "▕▆▆▏", "▕▅▅▏", "▕▄▄▏", "▕▃▃▏", "▕▂▂▏", "▕▁▁▏", "▕  ▏" }
+--local scroll = { "▕██▏", "▕▇▇▏", "▕▆▆▏", "▕▅▅▏", "▕▄▄▏", "▕▃▃▏", "▕▂▂▏", "▕▁▁▏", "▕  ▏" }
+local scroll = { "▕▔▔▏", "▕🭶🭶▏", "▕🭷🭷▏", "▕🭸🭸▏", "▕🭹🭹▏", "▕🭺🭺▏", "▕🭻🭻▏", "▕▁▁▏"}
 
 local function make_ruler()
 	local bufn = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
