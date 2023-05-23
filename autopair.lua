@@ -2,10 +2,18 @@
 -- By Rafael Fernandes, 2022. Public Domain.
 
 -- bring some functions to local scope
-local fmt = string.format
 local t = function(keys) return vim.api.nvim_replace_termcodes(keys, true, true, true) end
 local getcursor = vim.api.nvim_win_get_cursor
 local buftext = vim.api.nvim_buf_get_text
+local is_keyword_char = vim.regex([[\k]])
+
+-- checks if the character before the cursor is a keyword character
+local function prev_keyword()
+	local row, col = unpack(getcursor(0))
+	row = row - 1 -- change from 1 indexed to 0 indexed
+	local prev_char = buftext(0, row, col - 1, row, col, {})[1]
+	return is_keyword_char:match_str(prev_char)
+end
 
 -- get next character of the cursor
 local function nextchar()
@@ -20,16 +28,21 @@ local move_next = t('<C-G>U<Right>')
 
 -- functions for pairs with different chars
 local function pair_open(pair)
-	return fmt("%s%s", pair, move_prev)
+	return pair .. move_prev
 end
 
 local function pair_close(close_char)
 	return nextchar() == close_char and move_next or close_char
 end
 
--- function for quotes
+-- quotes
 local function quote_pair(quote_char)
-	return nextchar() == quote_char and move_next or fmt("%s%s%s", quote_char, quote_char, move_prev)
+	local next_c = nextchar()
+	-- don't double quote if the quote is being typed following a word
+	if prev_keyword() and next_c ~= quote_char then
+		return quote_char
+	end
+	return next_c == quote_char and move_next or quote_char .. quote_char .. move_prev
 end
 
 -- functions to add new line between a pair
@@ -49,25 +62,23 @@ end
 
 -- setup pair characters mapping table
 local autopairs = {
-	['"'] = { callback = function() return quote_pair('"') end; name = "DoubleQuotes"; },
-	["'"] = { callback = function() return quote_pair("'") end; name = "SingleQuotes"; },
-	['('] = { callback = function() return pair_open("()") end; name = "OpenParentesis"; },
-	[')'] = { callback = function() return pair_close(')') end; name = "CloseParentesis"; },
-	['['] = { callback = function() return pair_open("[]") end; name = "OpenSquareBracket"; },
-	[']'] = { callback = function() return pair_close(']') end; name = "CloseSquareBracket"; },
-	['{'] = { callback = function() return pair_open("{}") end; name = "OpenCurlyBracket"; },
-	['}'] = { callback = function() return pair_close('}') end; name = "CloseCurlyBracket"; },
-	['\r'] = { callback = function() return newline_pair() end; name = "NewlinePair"; },
+	['"'] = { callback = function() return quote_pair('"') end, name = "DoubleQuotes", },
+	["'"] = { callback = function() return quote_pair("'") end, name = "SingleQuotes", },
+	['('] = { callback = function() return pair_open("()") end, name = "OpenParentesis", },
+	[')'] = { callback = function() return pair_close(')') end, name = "CloseParentesis", },
+	['['] = { callback = function() return pair_open("[]") end, name = "OpenSquareBracket", },
+	[']'] = { callback = function() return pair_close(']') end, name = "CloseSquareBracket", },
+	['{'] = { callback = function() return pair_open("{}") end, name = "OpenCurlyBracket", },
+	['}'] = { callback = function() return pair_close('}') end, name = "CloseCurlyBracket", },
+	['\r'] = { callback = function() return newline_pair() end, name = "NewlinePair", },
 }
 
 -- export module functions
 M = {}
-local modname = ...
 local map = vim.api.nvim_set_keymap
-local map_options = { expr = true; noremap = true }
+local map_options = { expr = true, noremap = true }
 for lhs, v in pairs(autopairs) do
-	M[v.name] = v.callback
-	local rhs = fmt([[v:lua.require'%s'.%s()]], modname, v.name)
-	map("i", lhs, rhs, map_options)
+	map_options["callback"] = v.callback
+	map("i", lhs, '', map_options)
 end
 return M

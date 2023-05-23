@@ -35,7 +35,7 @@ end
 --- @param operators table @table with operators to match after a keyword
 local function member_access(operators)
 	local ops = join(operators, [[\|]])
-	return r(f([[\M\K\k\*\(%s\)$]], ops))
+	return r(f([[\M\(%s\)$]], ops))
 end
 
 -- END OF TRIGGER CONDITIONS --
