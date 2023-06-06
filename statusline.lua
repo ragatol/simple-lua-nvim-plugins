@@ -7,19 +7,19 @@ local b = string.byte
 
 -- mode display
 local modes = {
-	[ b'n' ] = { text = "NORMAL"; color = "StatusLineNC"; },
-	[ b'v' ] = { text = "VISUAL"; color = "DiffChange"; },
-	[ b'V' ] = { text = "V-LINE"; color = "DiffChange"; },
-	[ b's' ] = { text = "SELECT"; color = "PMenuSel"; },
-	[ b'S' ] = { text = "S-LINE"; color = "PMenuSel"; },
-	[ b'i' ] = { text = "INSERT"; color = "CursorLineNr"; },
-	[ b'R' ] = { text = "REPLACE"; color = "DiffDelete"; },
-	[ b'c' ] = { text = "COMMAND"; color = "Question"; },
-	[ b'r' ] = { text = "PROMPT"; color = "Question"; },
-	[ b't' ] = { text = "TERMINAL"; color = "Terminal"; },
-	[ b'!' ] = { text = "RUNNING"; color = "IncSearch"; },
-	[ 19 ] = { text = "S-BLOCK"; color = "PMenuSel"; }, -- CTRL-S
-	[ 22 ] = { text = "V-BLOCK"; color = "DiffChange"; }, -- CTRL-V
+	[ b'n' ] = { text = "NORMAL", color = "StatusLineNC", },
+	[ b'v' ] = { text = "VISUAL", color = "DiffChange", },
+	[ b'V' ] = { text = "V-LINE", color = "DiffChange", },
+	[ b's' ] = { text = "SELECT", color = "PMenuSel", },
+	[ b'S' ] = { text = "S-LINE", color = "PMenuSel", },
+	[ b'i' ] = { text = "INSERT", color = "CursorLineNr", },
+	[ b'R' ] = { text = "REPLACE", color = "DiffDelete", },
+	[ b'c' ] = { text = "COMMAND", color = "Question", },
+	[ b'r' ] = { text = "PROMPT", color = "Question", },
+	[ b't' ] = { text = "TERMINAL", color = "Terminal", },
+	[ b'!' ] = { text = "RUNNING", color = "IncSearch", },
+	[  19  ] = { text = "S-BLOCK", color = "PMenuSel", }, -- CTRL-S
+	[  22  ] = { text = "V-BLOCK", color = "DiffChange", }, -- CTRL-V
 }
 
 local function curmode()
@@ -59,7 +59,7 @@ local function statusline()
 end
 
 -- export and setup statusline module
-M = {}
+local M = {}
 local modname = ...
 M.statusline = statusline
 vim.go.statusline = f([[%%!v:lua.require'%s'.statusline()]], modname)

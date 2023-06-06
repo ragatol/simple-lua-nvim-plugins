@@ -74,7 +74,7 @@ local autopairs = {
 }
 
 -- export module functions
-M = {}
+local M = {}
 local map = vim.api.nvim_set_keymap
 local map_options = { expr = true, noremap = true }
 for lhs, v in pairs(autopairs) do

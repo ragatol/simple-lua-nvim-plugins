@@ -67,19 +67,26 @@ local function make_triggeromni(conditions)
 	end
 end
 
--- export
-local modname = ...
-M = {}
-
--- keys for opening and navigating the completion menu
+-- keys for opening and navigating suggestions
 local t = vim.api.nvim_replace_termcodes
 local next_key = t('<C-n>', true, true, true)
 local prev_key = t('<C-p>', true, true, true)
 local tab_key = t('<Tab>', true, true, true)
 local stab_key = t('<S-Tab>', true, true, true)
--- rhs of tab/s-tab keymaps
-local rhs_next = f([[v:lua.require'%s'.next()]], modname)
-local rhs_prev = f([[v:lua.require'%s'.prev()]], modname)
+
+-- functions for tab/s-tab for cicling suggestions
+local pumvisible = vim.fn.pumvisible
+
+local function next_suggestion()
+	return pumvisible() ~= 0 and next_key or tab_key
+end
+
+local function prev_suggestion()
+	return pumvisible() ~= 0 and prev_key or stab_key
+end
+
+-- export
+local M = {}
 
 --- setup the auto triggering of the omnifunc in a buffer.
 --- @param conditions table @table with conditions to trigger the omnifunc
@@ -91,16 +98,8 @@ M.setup = function(conditions, bufnr)
 		callback = make_triggeromni(conditions)
 	})
 	local keymap_opts = { expr = true, buffer = bufnr }
-	vim.keymap.set('i', '<Tab>', rhs_next, keymap_opts)
-	vim.keymap.set('i', '<S-Tab>', rhs_prev, keymap_opts)
-end;
-
-M.next = function()
-	return vim.fn.pumvisible() ~= 0 and next_key or tab_key
-end;
-
-M.prev = function()
-	return vim.fn.pumvisible() ~= 0 and prev_key or stab_key
+	vim.keymap.set('i', '<Tab>', next_suggestion, keymap_opts)
+	vim.keymap.set('i', '<S-Tab>', prev_suggestion, keymap_opts)
 end;
 
 M.conditions = {
