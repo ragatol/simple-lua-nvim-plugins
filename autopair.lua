@@ -62,23 +62,22 @@ end
 
 -- setup pair characters mapping table
 local autopairs = {
-	['"'] = { callback = function() return quote_pair('"') end, name = "DoubleQuotes", },
-	["'"] = { callback = function() return quote_pair("'") end, name = "SingleQuotes", },
-	['('] = { callback = function() return pair_open("()") end, name = "OpenParentesis", },
-	[')'] = { callback = function() return pair_close(')') end, name = "CloseParentesis", },
-	['['] = { callback = function() return pair_open("[]") end, name = "OpenSquareBracket", },
-	[']'] = { callback = function() return pair_close(']') end, name = "CloseSquareBracket", },
-	['{'] = { callback = function() return pair_open("{}") end, name = "OpenCurlyBracket", },
-	['}'] = { callback = function() return pair_close('}') end, name = "CloseCurlyBracket", },
-	['\r'] = { callback = function() return newline_pair() end, name = "NewlinePair", },
+	['"'] = function() return quote_pair('"') end,
+	["'"] = function() return quote_pair("'") end,
+	['('] = function() return pair_open("()") end,
+	[')'] = function() return pair_close(')') end,
+	['['] = function() return pair_open("[]") end,
+	[']'] = function() return pair_close(']') end,
+	['{'] = function() return pair_open("{}") end,
+	['}'] = function() return pair_close('}') end,
+	['\r'] = function() return newline_pair() end,
 }
 
 -- export module functions
 local M = {}
-local map = vim.api.nvim_set_keymap
+local map = vim.keymap.set
 local map_options = { expr = true, noremap = true }
-for lhs, v in pairs(autopairs) do
-	map_options["callback"] = v.callback
-	map("i", lhs, '', map_options)
+for lhs, rhs in pairs(autopairs) do
+	map("i", lhs, rhs , map_options)
 end
 return M
