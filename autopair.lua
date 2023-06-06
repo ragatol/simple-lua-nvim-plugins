@@ -2,7 +2,6 @@
 -- By Rafael Fernandes, 2022. Public Domain.
 
 -- bring some functions to local scope
-local t = function(keys) return vim.api.nvim_replace_termcodes(keys, true, true, true) end
 local getcursor = vim.api.nvim_win_get_cursor
 local buftext = vim.api.nvim_buf_get_text
 local is_keyword_char = vim.regex([[\k]])
@@ -23,8 +22,8 @@ local function nextchar()
 end
 
 -- cursor movement "chars". Use <C-G>U before movement to not break undo
-local move_prev = t('<C-G>U<Left>')
-local move_next = t('<C-G>U<Right>')
+local move_prev = "<C-G>U<Left>"
+local move_next = "<C-G>U<Right>"
 
 -- functions for pairs with different chars
 local function pair_open(pair)
@@ -46,8 +45,8 @@ local function quote_pair(quote_char)
 end
 
 -- functions to add new line between a pair
-local newline_between = t('\r<C-O>O')
-local normal_newline = t('\r')
+local newline_between = "\r<C-O>O"
+local normal_newline = "\r"
 local function inside_pair()
 	local row, col = unpack(getcursor(0))
 	if (col == 0) then return false end
@@ -76,7 +75,7 @@ local autopairs = {
 -- export module functions
 local M = {}
 local map = vim.keymap.set
-local map_options = { expr = true, noremap = true }
+local map_options = { expr = true }
 for lhs, rhs in pairs(autopairs) do
 	map("i", lhs, rhs , map_options)
 end

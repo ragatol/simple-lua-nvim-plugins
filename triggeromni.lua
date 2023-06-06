@@ -4,6 +4,7 @@
 local f = string.format
 local join = table.concat
 local r = vim.regex
+local pumvisible = vim.fn.pumvisible
 
 -- TRIGGER CONDIDIONS --
 
@@ -48,7 +49,7 @@ end
 
 local function open_omnifunc(conditions)
 	local char = vim.v.char
-	if vim.fn.pumvisible() ~= 0 then
+	if pumvisible() ~= 0 then
 		return
 	end
 	local recent = line_up_to_cursor() .. char
@@ -68,14 +69,12 @@ local function make_triggeromni(conditions)
 end
 
 -- keys for opening and navigating suggestions
-local t = vim.api.nvim_replace_termcodes
-local next_key = t('<C-n>', true, true, true)
-local prev_key = t('<C-p>', true, true, true)
-local tab_key = t('<Tab>', true, true, true)
-local stab_key = t('<S-Tab>', true, true, true)
+local next_key = '<C-n>'
+local prev_key = '<C-p>'
+local tab_key = '<Tab>'
+local stab_key = '<S-Tab>'
 
 -- functions for tab/s-tab for cicling suggestions
-local pumvisible = vim.fn.pumvisible
 
 local function next_suggestion()
 	return pumvisible() ~= 0 and next_key or tab_key
