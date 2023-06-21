@@ -1,51 +1,89 @@
 # simple-lua-nvim-plugins
-Simple, minimalistic Lua plugins/scripts for NeoVim 0.7.
 
-Each has less than 100 lines of code and are meant to be read and modified by the user.
+Simple, minimalistic Lua plugins/scripts for NeoVim.
 
 ## Installation
 
-Just download the scripts and move them to the 'lua' folder inside your Neovim config folder.
-Then `require` the plugin from your init.lua.
+Just download the scripts and move them to the 'lua' folder inside your Neovim
+config folder. Then `require` the plugin from your init.lua.
 
-If you are using init.vim, the use `luafile` with the path to the plugin file to load it.
+If you are using init.vim, then use `luafile` with the path to the plugin file
+to load it.
 
-These are very simple and small plugins, that are "good enough" to do what they propose to do,
-meant to be used as a starting point for the user.
-Using them with a plugin manager is not recommended.
+These are very simple and small plugins (the bigger one has 111 lines), that
+are "good enough" to do what they propose to do, meant to be used as a starting
+point for the user.
 
-Neovim 0.7+ is required.
+Using them with a plugin manager is not supported at the moment.
+
+A somewhat up-to-date version of Neovim (probably 0.8+) is required.
 
 ## Available Plugins
 
 ### autopairs.lua
 
-A simple implementation of autopairs. When typing the first character of a pair, it automatically
-types the closing character and places the cursor between them. If the next character after the cursor
-is the closing character, typing it will just move the cursor past it.
+A simple implementation of autopairs. When typing the first character of a
+pair, it automatically types the closing character and places the cursor
+between them. If the next character after the cursor is the closing character,
+typing it will just move the cursor past it.
 
-There's no auto-formatting, and it's not aware of any context, but most of the time the user really wants
-to type these pairs so it helps much more than it doesn't.
+There's no auto-formatting, and it's not aware of any context, but most of the
+time the user really wants to type these pairs so it helps much more than it
+doesn't.
 
-The script provides functions to easily create pairs, so you can customize what pairs you want.
+The script provides functions to easily create pairs, so you can customize what
+pairs you want.
 
 By default, it does "", '', (), [] and {}.
+
+"'" is a special case where it doesn't add double single quotes right after a
+word, so typing "don't" isn't annoying.
+
+Typing <Enter> inside (), [] or {} creates a empty line between them. Formatting is
+done by Neovim buit-in formatting.
+
+### insertpairs.lua
+
+A simple implementation of a command to insert an pair around a visual
+selection.
+
+Simply enter visual mode, do a selection and press <C-I> followed by:
+
+- " to insert double quotes;
+- ' to insert single quotes;
+- ( to insert ();
+- [ to insert [];
+- { to insert {};
+
+You can add new pairs by changing the `char_pairs` table.
 
 ### statusline.lua
 
 A simple implementation of a custom statusline.
 
-It shows the current MODE, file name, attributes, type, encoding and format, and cursor position with a pseudo "scrollbar",
-so you can find where in the file you are in a glance.
+It shows the current MODE, file name, attributes, type, encoding and format,
+and cursor position with a pseudo "scrollbar", so you can find where you are in
+the file in a glance.
 
-Instead of using custom hl-groups, it uses some of the basic ones, so even if you use one of the builtin colorschemes, it looks ok and consistent.
+Instead of using custom hl-groups, it uses some of the basic ones, so even if
+you use one of the builtin colorschemes, it looks ok and consistent. Of course,
+you can change what hl-groups each mode uses by changing the table in the
+script.
 
 ### triggeromni.lua
 
-A very simple "autocomplete" plugin, that triggers the omni-completion based on a set
-of conditions. Depends on neovim lsp and lspconfig.
+A very simple "autocomplete" plugin, that triggers the omni-completion based on
+a set of conditions. Depends on neovim lsp and lspconfig.
 
-To use it, require the plugin, and then setup the conditions in the `on_attach` function of lspconfig for each lsp client/server using the `setup` function.
+To use it, require the plugin, and then setup the conditions in the `on_attach`
+function of lspconfig for each lsp client/server using the `setup` function.
+
+Conditions to trigger the omni-completion are regex objects that tries to match
+from the beggining of the line, up to the last character typed.
+
+Since regexes are not that easy, some pre-defined conditions, such as
+triggering the completion after typing a member access operator (you can list
+what these operators are), are provided.
 
 Here's my config file as an example:
 

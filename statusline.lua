@@ -5,21 +5,21 @@
 local f = string.format
 local b = string.byte
 
--- mode display
+-- mode display, "color" is the hl-group to be used
 local modes = {
 	[ b'n' ] = { text = "NORMAL", color = "StatusLineNC", },
-	[ b'v' ] = { text = "VISUAL", color = "DiffChange", },
-	[ b'V' ] = { text = "V-LINE", color = "DiffChange", },
-	[ b's' ] = { text = "SELECT", color = "PMenuSel", },
-	[ b'S' ] = { text = "S-LINE", color = "PMenuSel", },
-	[ b'i' ] = { text = "INSERT", color = "CursorLineNr", },
+	[ b'v' ] = { text = "VISUAL", color = "Visual", },
+	[ b'V' ] = { text = "V-LINE", color = "Visual", },
+	[ b's' ] = { text = "SELECT", color = "Visual", },
+	[ b'S' ] = { text = "S-LINE", color = "Visual", },
+	[ b'i' ] = { text = "INSERT", color = "DiffAdd", },
 	[ b'R' ] = { text = "REPLACE", color = "DiffDelete", },
-	[ b'c' ] = { text = "COMMAND", color = "Question", },
-	[ b'r' ] = { text = "PROMPT", color = "Question", },
-	[ b't' ] = { text = "TERMINAL", color = "Terminal", },
+	[ b'c' ] = { text = "COMMAND", color = "DiffText", },
+	[ b'r' ] = { text = "PROMPT", color = "DiffText", },
+	[ b't' ] = { text = "TERMINAL", color = "TermCursor", },
 	[ b'!' ] = { text = "RUNNING", color = "IncSearch", },
-	[  19  ] = { text = "S-BLOCK", color = "PMenuSel", }, -- CTRL-S
-	[  22  ] = { text = "V-BLOCK", color = "DiffChange", }, -- CTRL-V
+	[  19  ] = { text = "S-BLOCK", color = "Visual", }, -- CTRL-S
+	[  22  ] = { text = "V-BLOCK", color = "Visual", }, -- CTRL-V
 }
 
 local function curmode()
@@ -37,9 +37,8 @@ local function fileinfo()
 	return string.gsub(info, "  │", "") -- remove empty info
 end
 
--- ruler with scroll
+-- ruler with scroll, a list of "frames" for the animation
 local scroll = { "▕██▏", "▕▇▇▏", "▕▆▆▏", "▕▅▅▏", "▕▄▄▏", "▕▃▃▏", "▕▂▂▏", "▕▁▁▏", "▕  ▏" }
---local scroll = { "▕▔▔▏", "▕🭶🭶▏", "▕🭷🭷▏", "▕🭸🭸▏", "▕🭹🭹▏", "▕🭺🭺▏", "▕🭻🭻▏", "▕▁▁▏"}
 
 local function make_ruler()
 	local bufn = vim.api.nvim_win_get_buf(vim.g.statusline_winid)

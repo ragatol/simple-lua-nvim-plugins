@@ -37,7 +37,11 @@ end
 -- quotes
 local function quote_pair(quote_char)
 	local next_c = nextchar()
-	-- don't double quote if the quote is being typed following a word
+	return next_c == quote_char and move_next or quote_char .. quote_char .. move_prev
+end
+
+local function non_word_quote_pair(quote_char)
+	local next_c = nextchar()
 	if prev_keyword() and next_c ~= quote_char then
 		return quote_char
 	end
@@ -62,7 +66,7 @@ end
 -- setup pair characters mapping table
 local autopairs = {
 	['"'] = function() return quote_pair('"') end,
-	["'"] = function() return quote_pair("'") end,
+	["'"] = function() return non_word_quote_pair("'") end,
 	['('] = function() return pair_open("()") end,
 	[')'] = function() return pair_close(')') end,
 	['['] = function() return pair_open("[]") end,
