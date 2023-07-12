@@ -47,7 +47,7 @@ done by Neovim buit-in formatting.
 A simple implementation of a command to insert an pair around a visual
 selection.
 
-Simply enter visual mode, do a selection and press `<C-I>` followed by:
+Simply enter visual mode, do a selection and press `<Leader>` followed by:
 
 - " to insert double quotes;
 - ' to insert single quotes;
