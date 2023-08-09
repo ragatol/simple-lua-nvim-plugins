@@ -5,8 +5,11 @@
 local f = string.format
 local b = string.byte
 
--- itens of statusline are added to this table in order
+-- itens of statusline are added to this table in order using the function add_section
+-- section is a function that takes 2 arguments: buffer_number and is_window_active
+-- and returns a statusline format string
 local status = {}
+local function add_section(section) table.insert(status, section) end
 
 -- mode display, "color" is the hl-group to be used
 local modes = {
@@ -24,32 +27,30 @@ local modes = {
 	[19] = { text = "S-BLOCK", color = "Visual", }, -- CTRL-S
 	[22] = { text = "V-BLOCK", color = "Visual", }, -- CTRL-V
 }
-local function mode_status(_, active)
+add_section(function(_, active)
 	local mode = modes[b(vim.api.nvim_get_mode().mode)]
 	return (mode and active) and f("%%#%s# %s ", mode.color, mode.text) or ""
-end
-table.insert(status, mode_status)
+end)
 
 -- filename and flags
-local function filename(_, active)
+add_section(function(_, active)
 	local color = active and "StatusLine" or "StatusLineNC"
 	local file_flags = "%(%t%< %h%w%r%m%)"
 	return f("%%#%s# %s", color, file_flags)
-end
-table.insert(status, filename)
+end)
 
 -- start right side of statusline
-table.insert(status, function() return "%=" end)
+add_section(function() return "%=" end)
 
 -- Lsp diagnostics status
-local diag_signs = {}
+local lsp_signs = {}
 local function make_diag_format_str(sign)
 	local s = vim.fn.sign_getdefined(sign)[1]
 	return s and f("%%%%#%s#%%s%s", sign, s.text) or nil
 end
 vim.api.nvim_create_autocmd("LspAttach", {
 	callback = function()
-		diag_signs = { -- In order of 'severity'
+		lsp_signs = { -- In order of 'severity'
 			make_diag_format_str "DiagnosticSignError",
 			make_diag_format_str "DiagnosticSignWarn",
 			make_diag_format_str "DiagnosticSignInfo",
@@ -57,45 +58,42 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		}
 	end,
 })
-local function diag_status(bufn)
+add_section(function(bufn)
 	local diags = vim.diagnostic.get(bufn)
-	if #diags == 0 or #diag_signs == 0 then
+	if #diags == 0 or #lsp_signs == 0 then
 		return ""
 	end
 	local count = { 0, 0, 0, 0 }
 	for _, v in ipairs(diags) do
-		count[v.severity] = count[v.severity] + 1 or 1
+		count[v.severity] = count[v.severity] + 1
 	end
 	local diags_str = {}
 	for i, v in ipairs(count) do
 		if v > 0 then
-			table.insert(diags_str, f(diag_signs[i], v))
+			table.insert(diags_str, f(lsp_signs[i], v))
 		end
 	end
 	table.insert(diags_str, "")
 	return table.concat(diags_str, " ")
-end
-table.insert(status, diag_status)
+end)
 
 -- file type, format and encoding
-local function fileinfo(bufn)
+add_section(function(bufn)
 	local format = vim.api.nvim_buf_get_option(bufn, "fileformat")
 	local encoding = vim.api.nvim_buf_get_option(bufn, "fileencoding")
 	local type = vim.api.nvim_buf_get_option(bufn, "filetype")
 	local info = f("%%#StatusLineNC# %s │ %s │ %s⏎ ", type, encoding, format)
 	return (string.gsub(info, "  │", "")) -- remove empty info and ignore number of replacements
-end
-table.insert(status, fileinfo)
+end)
 
 -- ruler with scroll, a list of "frames" for the animation
 local scroll = { "▕██▏", "▕▇▇▏", "▕▆▆▏", "▕▅▅▏", "▕▄▄▏", "▕▃▃▏", "▕▂▂▏", "▕▁▁▏", "▕  ▏" }
-local function make_ruler(bufn)
+add_section(function(bufn)
 	local pos = vim.fn.line('.', vim.g.statusline_winid)
 	local total = vim.api.nvim_buf_line_count(bufn)
 	local frame = math.ceil((pos / total) * #scroll)
 	return f("%%#CursorLineNr# %%12(%%l:%%2.v%s%%)", scroll[frame])
-end
-table.insert(status, make_ruler)
+end)
 
 -- setup statusline function
 local function statusline()
