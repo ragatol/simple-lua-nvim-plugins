@@ -5,56 +5,107 @@
 local f = string.format
 local b = string.byte
 
+-- itens of statusline are added to this table in order
+local status = {}
+
 -- mode display, "color" is the hl-group to be used
 local modes = {
-	[ b'n' ] = { text = "NORMAL", color = "StatusLineNC", },
-	[ b'v' ] = { text = "VISUAL", color = "Visual", },
-	[ b'V' ] = { text = "V-LINE", color = "Visual", },
-	[ b's' ] = { text = "SELECT", color = "Visual", },
-	[ b'S' ] = { text = "S-LINE", color = "Visual", },
-	[ b'i' ] = { text = "INSERT", color = "DiffAdd", },
-	[ b'R' ] = { text = "REPLACE", color = "DiffDelete", },
-	[ b'c' ] = { text = "COMMAND", color = "DiffText", },
-	[ b'r' ] = { text = "PROMPT", color = "DiffText", },
-	[ b't' ] = { text = "TERMINAL", color = "TermCursor", },
-	[ b'!' ] = { text = "RUNNING", color = "IncSearch", },
-	[  19  ] = { text = "S-BLOCK", color = "Visual", }, -- CTRL-S
-	[  22  ] = { text = "V-BLOCK", color = "Visual", }, -- CTRL-V
+	[b 'n'] = { text = "NORMAL", color = "StatusLineNC", },
+	[b 'v'] = { text = "VISUAL", color = "Visual", },
+	[b 'V'] = { text = "V-LINE", color = "Visual", },
+	[b 's'] = { text = "SELECT", color = "Visual", },
+	[b 'S'] = { text = "S-LINE", color = "Visual", },
+	[b 'i'] = { text = "INSERT", color = "DiffAdd", },
+	[b 'R'] = { text = "REPLACE", color = "DiffDelete", },
+	[b 'c'] = { text = "COMMAND", color = "DiffText", },
+	[b 'r'] = { text = "PROMPT", color = "DiffText", },
+	[b 't'] = { text = "TERMINAL", color = "TermCursor", },
+	[b '!'] = { text = "RUNNING", color = "IncSearch", },
+	[19] = { text = "S-BLOCK", color = "Visual", }, -- CTRL-S
+	[22] = { text = "V-BLOCK", color = "Visual", }, -- CTRL-V
 }
-
-local function curmode()
-	local m = modes[b(vim.api.nvim_get_mode().mode)]
-	return m and f("%%#%s# %s ", m.color, m.text) or ""
+local function mode_status(_, active)
+	local mode = modes[b(vim.api.nvim_get_mode().mode)]
+	return (mode and active) and f("%%#%s# %s ", mode.color, mode.text) or ""
 end
+table.insert(status, mode_status)
+
+-- filename and flags
+local function filename(_, active)
+	local color = active and "StatusLine" or "StatusLineNC"
+	local file_flags = "%(%t%< %h%w%r%m%)"
+	return f("%%#%s# %s", color, file_flags)
+end
+table.insert(status, filename)
+
+-- start right side of statusline
+table.insert(status, function() return "%=" end)
+
+-- Lsp diagnostics status
+local diag_signs = {}
+local function make_diag_format_str(sign)
+	local s = vim.fn.sign_getdefined(sign)[1]
+	return s and f("%%%%#%s#%%s%s", sign, s.text) or nil
+end
+vim.api.nvim_create_autocmd("LspAttach", {
+	callback = function()
+		diag_signs = { -- In order of 'severity'
+			make_diag_format_str "DiagnosticSignError",
+			make_diag_format_str "DiagnosticSignWarn",
+			make_diag_format_str "DiagnosticSignInfo",
+			make_diag_format_str "DiagnosticSignHint",
+		}
+	end,
+})
+local function diag_status(bufn)
+	local diags = vim.diagnostic.get(bufn)
+	if #diags == 0 or #diag_signs == 0 then
+		return ""
+	end
+	local count = { 0, 0, 0, 0 }
+	for _, v in ipairs(diags) do
+		count[v.severity] = count[v.severity] + 1 or 1
+	end
+	local diags_str = {}
+	for i, v in ipairs(count) do
+		if v > 0 then
+			table.insert(diags_str, f(diag_signs[i], v))
+		end
+	end
+	table.insert(diags_str, "")
+	return table.concat(diags_str, " ")
+end
+table.insert(status, diag_status)
 
 -- file type, format and encoding
-local function fileinfo()
-	local bufn = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+local function fileinfo(bufn)
 	local format = vim.api.nvim_buf_get_option(bufn, "fileformat")
 	local encoding = vim.api.nvim_buf_get_option(bufn, "fileencoding")
 	local type = vim.api.nvim_buf_get_option(bufn, "filetype")
 	local info = f("%%#StatusLineNC# %s │ %s │ %s⏎ ", type, encoding, format)
-	return string.gsub(info, "  │", "") -- remove empty info
+	return (string.gsub(info, "  │", "")) -- remove empty info and ignore number of replacements
 end
+table.insert(status, fileinfo)
 
 -- ruler with scroll, a list of "frames" for the animation
 local scroll = { "▕██▏", "▕▇▇▏", "▕▆▆▏", "▕▅▅▏", "▕▄▄▏", "▕▃▃▏", "▕▂▂▏", "▕▁▁▏", "▕  ▏" }
-
-local function make_ruler()
-	local bufn = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
+local function make_ruler(bufn)
 	local pos = vim.fn.line('.', vim.g.statusline_winid)
 	local total = vim.api.nvim_buf_line_count(bufn)
-	local c = math.ceil((pos / total) * #scroll)
-	return f("%%#CursorLineNr# %%12(%%l:%%2.v%s%%)", scroll[c])
+	local frame = math.ceil((pos / total) * #scroll)
+	return f("%%#CursorLineNr# %%12(%%l:%%2.v%s%%)", scroll[frame])
 end
+table.insert(status, make_ruler)
 
 -- setup statusline function
 local function statusline()
+	local bufn = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
 	local active = vim.g.statusline_winid == vim.api.nvim_get_current_win()
-	local mode = active and curmode() or "" -- do not show mode in inactive windows
-	local color = active and "StatusLine" or "StatusLineNC"
-	local name = "%(%t%< %h%w%r%m%)"
-	return f("%s%%#%s# %s%%=%s%s", mode, color, name, fileinfo(), make_ruler())
+	local status_str = {}
+	for _, func in ipairs(status) do
+		table.insert(status_str, func(bufn, active))
+	end
+	return table.concat(status_str)
 end
 
 -- export and setup statusline module
