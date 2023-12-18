@@ -15,7 +15,7 @@ local keyword = r([[\K\k\{2,}$]])
 -- functions to help build other conditions
 
 --- matches text at the start of the line, ignoring whitespace.
---- @param text string|table @text or list of texts to match
+--- @param text string|table text or list of texts to match
 local function begins_with(text)
 	if type(text) == "table" then
 		text = f([[\(%s\)]], join(text, [[\|]]))
@@ -24,7 +24,7 @@ local function begins_with(text)
 end
 
 --- matches text from the start of the current line up to the cursor
---- @param text string|table @text or table of texts to match
+--- @param text string|table text or table of texts to match
 local function ends_with(text)
 	if type(text) == "table" then
 		text = f([[\(%s\)]], join(text, [[\|]]))
@@ -33,7 +33,7 @@ local function ends_with(text)
 end
 
 --- matches a keyword followed by one of the operators in a list
---- @param operators table @table with operators to match after a keyword
+--- @param operators table table with operators to match after a keyword
 local function member_access(operators)
 	local ops = join(operators, [[\|]])
 	return r(f([[\M\(%s\)$]], ops))
@@ -88,8 +88,8 @@ end
 local M = {}
 
 --- setup the auto triggering of the omnifunc in a buffer.
---- @param conditions table @table with conditions to trigger the omnifunc
---- @param bufnr number @[optional] buffer to setup, defaults to current buffer (0).
+--- @param conditions table table with conditions to trigger the omnifunc
+--- @param bufnr number [optional] buffer to setup, defaults to current buffer (0).
 M.setup = function(conditions, bufnr)
 	bufnr = bufnr or 0
 	vim.api.nvim_create_autocmd("InsertCharPre", {
