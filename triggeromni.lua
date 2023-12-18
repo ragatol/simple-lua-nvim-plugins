@@ -49,7 +49,8 @@ end
 
 local function open_omnifunc(conditions)
 	local char = vim.v.char
-	if pumvisible() ~= 0 then
+	-- don't call omnifunc if it's not set or if there's already a completion window open
+	if vim.api.nvim_buf_get_option(0, "omnifunc") == "" or pumvisible() ~= 0 then
 		return
 	end
 	local recent = line_up_to_cursor() .. char
@@ -102,10 +103,10 @@ M.setup = function(conditions, bufnr)
 end;
 
 M.conditions = {
-	keyword = keyword;
-	begins_with = begins_with;
-	ends_with = ends_with;
-	member_access = member_access;
+	keyword = keyword,
+	begins_with = begins_with,
+	ends_with = ends_with,
+	member_access = member_access,
 }
 
 return M
